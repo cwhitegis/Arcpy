@@ -5,3 +5,6 @@
 
 ### APIDataCreateLayer
 #### Gets data from alert west api and creates a feature layer from the lat long
+
+### VersionDifferences
+#### Uses the version differences tool for feature service editing to select any updates made to layers
