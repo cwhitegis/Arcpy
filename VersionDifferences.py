@@ -22,7 +22,7 @@ for lyr in lyrs:
             lyrList.append(lyr)
 
 #Finds the feature layer in feature service to final all versions in the container
-items = gis.content.search("title: Parcel_Edits", item_type="Feature Layer")[0]
+items = gis.content.search("title: Feature Service", item_type="Feature Layer")[0]
 pfc = items.layers[0].container
 verMgr = pfc.versions.all
 for ver in verMgr:
