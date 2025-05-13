@@ -45,23 +45,26 @@ for dif in diff['differences']:
                 if len(dif) == 2:
                     if 'inserts' in dif:
                         arcpy.AddMessage(f"{lyr.name} Inserts({len(dif['inserts'])})")
+                        updateDict[lyr.name] = dif['inserts']
                     if 'updates' in dif:
                         arcpy.AddMessage(f"{lyr.name} Updates({len(dif['updates'])})")
                         updateDict[lyr.name] = dif['updates']
-                    else:
+                    if 'deletes' in dif:
                         arcpy.AddMessage(f"{lyr.name} Deletes({len(dif['deletes'])})")
                 if len(dif) == 3:
                     if 'inserts' in dif and 'updates' in dif:
                         arcpy.AddMessage(f"{lyr.name} Inserts({len(dif['inserts'])}),Updates({len(dif['updates'])})")
+                        updateDict[lyr.name] = dif['inserts']
                         updateDict[lyr.name] = dif['updates']
                     if 'inserts' in dif and 'deletes' in dif:
                         arcpy.AddMessage(f"{lyr.name} Inserts({len(dif['inserts'])}),Deletes({len(dif['deletes'])})")
-                        updateDict[lyr.name] = dif['updates']
+                        updateDict[lyr.name] = dif['inserts']
                     if 'updates' in diff and 'deletes' in dif:
                         arcpy.AddMessage(f"{lyr.name} Updates({len(dif['updates'])}),Deletes({len(dif['deletes'])})")
                         updateDict[lyr.name] = dif['updates']
                 if len(dif) == 4:
                     arcpy.AddMessage(f"{lyr.name} Inserts({len(dif['inserts'])}),Updates({len(dif['updates'])}),Deletes({len(dif['deletes'])})")
+                    updateDict[lyr.name] = dif['inserts']
                     updateDict[lyr.name] = dif['updates']
 #Select based on object ids for updates
 for lyr in lyrList:
