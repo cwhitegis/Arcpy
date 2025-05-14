@@ -1,42 +1,43 @@
 import arcpy
 from arcgis import GIS
+from arcgis.features._version import VersionManager
 
 aprx = arcpy.mp.ArcGISProject('CURRENT')
 mp = aprx.activeMap
 mv = aprx.activeView
 lyrs = mp.listLayers()
+recordLyr = mp.listLayers('Records')[0]
+lyrList = []
+lyrIDs = [1,2,3,4]
 gis = GIS('pro')
 user = gis.properties.user.username
 arcpy.AddMessage(f'User Name: {user}')
-lyrList = []
 
-#Finds the versions GUID from the layer data source in the Map
+#Access version GUID from the datasource
+start = recordLyr.dataSource.find('{')
+stop = recordLyr.dataSource.find('}') + 1
+versionGUID = recordLyr.dataSource[start:stop]
+arcpy.AddMessage(f'Edit Version GUID: {versionGUID}')
+
 for lyr in lyrs:
     if lyr.isFeatureLayer:
-        if lyr.dataSource.endswith('/1'):
-            start = lyr.dataSource.find('{')
-            stop = lyr.dataSource.find('}') + 1
-            versionGUID = lyr.dataSource[start:stop]
-            arcpy.AddMessage(f'Edit Version GUID: {versionGUID}')
-        if 'Easements' == lyr.name or 'Lots' == lyr.name or 'Condos' == lyr.name:
+        if 'Easements' == lyr.name or 'Easements_Lines' == lyr.name or 'Lots' == lyr.name or 'Condos' == lyr.name:
             lyrList.append(lyr)
 
-#Finds the feature layer in feature service to final all versions in the container
-items = gis.content.search("title: Feature Service", item_type="Feature Layer")[0]
-pfc = items.layers[0].container
-verMgr = pfc.versions.all
-for ver in verMgr:
-    if ver.properties['versionGuid'] == versionGUID:
-        editVer = ver
-        arcpy.AddMessage(f"Found Version: {editVer.properties['versionGuid']}")
+#Access versions from the Version Manger Server
+version_management_server_url = f"https://mysite.com/server/rest/services/VersionManagementServer"
+vms = VersionManager(version_management_server_url, gis)
+for v in vms.all:
+    if v.properties.versionGuid == versionGUID:
+        editVer = v
+        arcpy.AddMessage(f'Found Edit Version {v}')
         break
 
 #Reads the edit version and gets the differences
 editVer.start_reading()
-diff = editVer.differences(result_type='objectIds', moment=None)
+diff = editVer.differences(result_type='objectIds', moment=None, layers=lyrIDs)
 editVer.stop_reading()
 
-#loops through differences in the edit version
 updateDict = {}
 for dif in diff['differences']:
     for lyr in lyrList:
@@ -66,12 +67,14 @@ for dif in diff['differences']:
                     arcpy.AddMessage(f"{lyr.name} Inserts({len(dif['inserts'])}),Updates({len(dif['updates'])}),Deletes({len(dif['deletes'])})")
                     updateDict[lyr.name] = dif['inserts']
                     updateDict[lyr.name] = dif['updates']
-#Select based on object ids for updates
+
+#Select features based on object ids for updates
 for lyr in lyrList:
     for k, v in updateDict.items():
         if lyr.name == k:
             exp = f"objectid IN ({','.join(map(str,v))})"
             arcpy.management.SelectLayerByAttribute(lyr,'NEW_SELECTION',where_clause = exp)
+
 #Zoom to selection
 for lyr in lyrList:
     if lyr.getSelectionSet() is not None:
