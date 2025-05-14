@@ -7,4 +7,4 @@
 #### Gets data from alert west api and creates a feature layer from the lat long
 
 ### VersionDifferences
-#### Uses the Arcgis API for Python to access version differences tool for feature service editing to select any updates made to layers
+#### Uses the Arcgis API for Python to access version differences tool for feature service editing to select any updates or inserts made to layers
