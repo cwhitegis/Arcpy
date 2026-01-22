@@ -8,3 +8,6 @@
 
 ### VersionDifferences
 #### Uses the Arcgis API for Python to access version differences tool for feature service editing to select any updates or inserts made to layers
+
+### DeletedParcelLines
+#### Use with Parcel Fabric to retrive any deleted lines in an edit version from the default feature serivce. Accessing the version differences to find the objectIDs of deleted lines. Makes a feature layer from the objectIDs and adds it to the map. Lines can be copied into edit version parcel lines.
