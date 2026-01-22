@@ -7,7 +7,7 @@ mp = aprx.activeMap
 mv = aprx.activeView
 lyrs = mp.listLayers()
 recordLyr = mp.listLayers('Records')[0]
-pLinesUrl = 'https://gis.honolulu.gov/cpub/rest/services/Parcel_Edits/FeatureServer/17'
+pLinesUrl = 'https://portal.url/FeatureServer/'
 arcpy.env.overwriteOutput = True
 gis = GIS('pro')
 user = gis.properties.user.username
@@ -19,7 +19,7 @@ editVersion = recordLyr.connectionProperties['connection_info']['version']
 arcpy.AddMessage(f'Edit Version: {editVersion}')
 
 #Access version from the Version Manger Server
-vms_url = f"https://gis.honolulu.gov/cpub/rest/services/Parcel_Edits/VersionManagementServer"
+vms_url = f"https://portal.url/VersionManagementServer"
 vms = VersionManager(vms_url, gis)
 with vms.get(editVersion,"read") as version:
     diff = version.differences(result_type='objectIds',moment=None,layers=[17])
@@ -42,3 +42,4 @@ sym.renderer.symbol.size = 3
 deletedLines.symbology = sym
 #mv.camera.setExtent(mv.getLayerExtent(deletedLines))
 arcpy.AddMessage('Added Deleted Parcel Lines Layer to TOC for Review')
+
